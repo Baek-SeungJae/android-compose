@@ -3,12 +3,19 @@ package com.hwc.happybirthday
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hwc.happybirthday.ui.theme.HappyBirthdayTheme
 
@@ -19,7 +26,7 @@ class MainActivity : ComponentActivity() {
             HappyBirthdayTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    BirthdayGreetingWithText( "Happy Birthday Sam!", "- from Emma")
+                    BirthdayGreetingWithImage(message = stringResource(R.string.happy_birthday_text), from = stringResource(R.string.signature_text))
                 }
             }
         }
@@ -62,15 +69,60 @@ fun BirthdayGreetingWithText(message: String, from: String) {
             * 밀도 독립형 픽셀(dp)는 주로 레이아웃에 사용한다
             * sp와 dp는 단위와 크기가 동일하지만, sp는 휴대전화 설정에서 선택한 선호하는 텍스트 크기에 따라 크기가 조절된다
             * */
-            fontSize = 36.sp
+            fontSize = 36.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentWidth(Alignment.CenterHorizontally)
+                .padding(top = 16.dp)
         )
         /*
         * 다른 텍스트요소를 추가할 수 있다
         * */
         Text(
             text = from,
-            fontSize = 24.sp
+            fontSize = 24.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentWidth(Alignment.CenterHorizontally)
+                .padding()
         )
+    }
+}
+
+/*
+* 안드로이드 resource
+* - 이미지와 문자열은 독자적인 관리가 가능하도록 코드로부터 분리해야 한다
+* 리소스 그룹화
+* - 항상 프로젝트의 res/ 디렉터리에 각 유형에 맞는 리소스를 재배치해야한다
+* - drawable:이미지, mipmap:런처아이콘, values:텍스트
+* - https://developer.android.com/guide/topics/resources/available-resources?hl=ko
+* 프로젝트의 R(안드로이드가 자동으로 생성한다) 클래스에서 생성된 리소스 ID로 리소스에 액세스할 수 있다
+* */
+@Composable
+fun BirthdayGreetingWithImage(message: String, from: String) {
+    val image = painterResource(R.drawable.androidparty)
+    /*
+    * Box 레이아웃
+    * 요소를 서로 위에 쌓는다
+    * 특정 정렬도 사용할 수 있다
+    * */
+    Box {
+        Image(
+            painter = image,
+            /*
+            * 접근성을 위한 코딩 사례를 따르면 장애가 있는 사용자를 비롯해서 모든 사용자가 앱과 상호작용할 수 있어야 한다
+            * UI 요소의 목적을 설명하고 TalkBack 과 함께 사용할 수 있어야하지만 여기서 이 이미지는 단순 배경역할이므로 null 로 생략한다
+            * */
+            contentDescription = null,
+            /*
+            * modifier 를 이용해서 요소를 장식하거나 동작을 추가한다
+            * */
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop
+        )
+        BirthdayGreetingWithText(message, from)
     }
 }
 
@@ -84,6 +136,9 @@ fun BirthdayGreetingWithText(message: String, from: String) {
 @Composable
 fun BirthdayCardPreview() {
     HappyBirthdayTheme {
-        BirthdayGreetingWithText(message = "happy birthday sam!", from = "from Emma")
+        /*
+        * 문자열을 리소스에 저장하고 리소스로부터 불러와서 사용한다
+        * */
+        BirthdayGreetingWithImage(message = stringResource(R.string.happy_birthday_text), from = stringResource(R.string.signature_text))
     }
 }
